@@ -36,7 +36,7 @@
                       <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="170.0" minHeight="0.0" minWidth="55.0" prefHeight="160.0" prefWidth="100.0">
                            <children>
                               <Button fx:id="rollCallButton" layoutY="2.0" maxHeight="300.0" mnemonicParsing="false" onAction="#RollCallCallOnAction" opacity="0.7" prefHeight="87.0" prefWidth="87.0" text="点名" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                              <Button fx:id="timeRecordButton" layoutY="87.0" maxHeight="300.0" mnemonicParsing="false" onAction="#TimeRecordCallOnAction" opacity="0.7" prefHeight="87.0" prefWidth="87.0" text="报站" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                              <Button fx:id="timeRecordButton" disable="true" layoutY="87.0" maxHeight="300.0" mnemonicParsing="false" onAction="#TimeRecordCallOnAction" opacity="0.0" prefHeight="87.0" prefWidth="87.0" text="报站" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
                            </children>
                         </AnchorPane>
                       <AnchorPane id="mainPane" fx:id="ApplicationDisplay" minHeight="300.0" minWidth="250.0" prefHeight="650.0" prefWidth="500.0">

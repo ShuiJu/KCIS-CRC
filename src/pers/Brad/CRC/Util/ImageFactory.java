@@ -192,8 +192,9 @@ public class ImageFactory {
 					getStudentImageNow(StudentID);
 					break;
 				} catch (NoSuchPersonOnServerException e) {
-					((SimpleObjectProperty<Image>)cacheMap.get(StudentID.hashCode()))
-						.set(defaultExceptionImageWhileProloadingImage[new java.util.Random().nextInt(defaultExceptionImageWhileProloadingImage.length)]);
+					if (defaultExceptionImageWhileProloadingImage.length!=0)
+						((SimpleObjectProperty<Image>)cacheMap.get(StudentID.hashCode()))
+							.set(defaultExceptionImageWhileProloadingImage[new java.util.Random().nextInt(defaultExceptionImageWhileProloadingImage.length)]);
 					break;
 				} catch (IOException e) {
 				} catch (IDFormatException e) {

@@ -8,8 +8,6 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.eclipse.jdt.annotation.NonNull;
-
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -61,7 +59,7 @@ public class RollCallField extends AnchorPane{
 	
 	public RollCallField(){}
 	
-	public RollCallField(@NonNull RollCallUtil rcl) throws IOException{
+	public RollCallField(RollCallUtil rcl) throws IOException{
 		super();
 		assert rcl!=null;
 		this.rcu=rcl;
