@@ -1,0 +1,8 @@
+#For Methhod "getInitVaribles"
+#Tue Mar 07 15:53:56 CST 2017
+Name=<line>68</line><BackType>String</BackType><StartPoint>title\='</StartPoint><EndPoint>' style\='<EndPoint>
+Shared\ Website=http\://portal.kcisec.com/rollcall/CarRecordDriver/CarRecordDriver_MainPage
+isTheDay=<line>145</line><BackType>Boolean</BackType><HasValue>"1"</HasValue>
+lineName=<line>155</line><BackType>String</BackType<StartPoint>'></StartPoint><EndPoint></option></EndPoint>
+Enable\ Shared\ Information\ Page=true
+lineID=<line>155</line><BackType>String</BackType><StartPoint>"<option value\='</StartPoint><EndPoint>'></EndPoint>
