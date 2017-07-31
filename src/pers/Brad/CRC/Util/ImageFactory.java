@@ -195,6 +195,8 @@ public class ImageFactory {
 					if (defaultExceptionImageWhileProloadingImage.length!=0)
 						((SimpleObjectProperty<Image>)cacheMap.get(StudentID.hashCode()))
 							.set(defaultExceptionImageWhileProloadingImage[new java.util.Random().nextInt(defaultExceptionImageWhileProloadingImage.length)]);
+					else
+						((SimpleObjectProperty<Image>)cacheMap.get(StudentID.hashCode())).set(defaultLoadingImage);
 					break;
 				} catch (IOException e) {
 				} catch (IDFormatException e) {
