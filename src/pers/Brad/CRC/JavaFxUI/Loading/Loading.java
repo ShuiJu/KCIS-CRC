@@ -130,14 +130,8 @@ class GIFS{
 	
 	static{
 		try{
-			final String nameSummaryFile="Images/ImageNames";
-			System.out.println(Loading.class);
-			System.out.println(Loading.class.getResourceAsStream(nameSummaryFile));
-			if (Loading.class.getResourceAsStream(nameSummaryFile)==null){
-				throw new InternalError("Name Summary File losts");
-			}
 			ArrayList<Image> LocalImages=new ArrayList<Image>(10);
-			BufferedReader buf=new BufferedReader(new InputStreamReader(Loading.class.getResourceAsStream(nameSummaryFile),"utf-8"));
+			BufferedReader buf=new BufferedReader(new InputStreamReader(Loading.class.getResourceAsStream("Images"),"utf-8"));
 			String str;
 			while ((str=buf.readLine())!=null){
 				InputStream in=Loading.class.getResourceAsStream("Images/"+str);

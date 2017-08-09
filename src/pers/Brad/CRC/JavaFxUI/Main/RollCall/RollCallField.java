@@ -32,18 +32,18 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import pers.Brad.CRC.InternetAcessPart.ConnectionCheck;
-import pers.Brad.CRC.InternetAcessPart.MapGenerater;
-import pers.Brad.CRC.InternetAcessPart.NoSuchPersonInDataBaseException;
-import pers.Brad.CRC.InternetAcessPart.NoSuchPersonOnServerException;
-import pers.Brad.CRC.InternetAcessPart.PersonNotFoundException;
-import pers.Brad.CRC.InternetAcessPart.RollCallUtil;
-import pers.Brad.CRC.InternetAcessPart.RollCallUtil.NotTheDayException;
-import pers.Brad.CRC.InternetAcessPart.StanderStudent;
-import pers.Brad.CRC.InternetAcessPart.loginedUser;
-import pers.Brad.CRC.InternetAcessPart.Exceptions.ErrorResponse;
-import pers.Brad.CRC.InternetAcessPart.Exceptions.IDFormatException;
-import pers.Brad.CRC.Util.ImageFactory;
+import pers.Brad.CRC.CRC.ConnectionCheck;
+import pers.Brad.CRC.CRC.MapGenerater;
+import pers.Brad.CRC.CRC.NoSuchPersonInDataBaseException;
+import pers.Brad.CRC.CRC.NoSuchPersonOnServerException;
+import pers.Brad.CRC.CRC.PersonNotFoundException;
+import pers.Brad.CRC.CRC.RollCallUtil;
+import pers.Brad.CRC.CRC.StanderStudent;
+import pers.Brad.CRC.CRC.loginedUser;
+import pers.Brad.CRC.CRC.Exceptions.ErrorResponse;
+import pers.Brad.CRC.CRC.Exceptions.IDFormatException;
+import pers.Brad.CRC.CRC.RollCallUtil.NotTheDayException;
+import pers.Brad.CRC.Util.StudentImageLibrary;
 
 public class RollCallField extends AnchorPane{
 	
@@ -411,7 +411,7 @@ public class RollCallField extends AnchorPane{
 				try {
 					StanderStudent stu=RollCallUtil.getStanderStudentByCardIDFromOrdering(CardID);
 					try{
-						Pic.setImage(ImageFactory.getStudentImageNow(stu.getID()));
+						Pic.setImage(StudentImageLibrary.getStudentImage(stu.getID()));
 					} catch (PersonNotFoundException e2){
 						Pic.setImage(Default_0);
 					}
@@ -427,7 +427,7 @@ public class RollCallField extends AnchorPane{
 				try {
 					StanderStudent stu=RollCallUtil.getStanderStudentByCardIDFromOrdering(CardID);
 					try{
-						Pic.setImage(ImageFactory.getStudentImageNow(stu.getID()));
+						Pic.setImage(StudentImageLibrary.getStudentImage(stu.getID()));
 					} catch (PersonNotFoundException e2){
 						Pic.setImage(Default_0);
 					}
@@ -494,7 +494,7 @@ public class RollCallField extends AnchorPane{
 	private void changeInfoDisplay(StanderStudent stu) throws IOException{
 		onStudentInfo.getItems().clear();
 		try {
-			if (!stu.getID().equals("06265"))Pic.setImage(ImageFactory.getStudentImageNow(stu.getID()));
+			if (!stu.getID().equals("06265"))Pic.setImage(StudentImageLibrary.getStudentImage(stu.getID()));
 			else Pic.setImage(Senior);
 		} catch (IDFormatException e1) {
 			throw new InternalError(e1);

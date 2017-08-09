@@ -19,13 +19,13 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -39,11 +39,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import pers.Brad.CRC.InternetAcessPart.PersonNotFoundException;
-import pers.Brad.CRC.InternetAcessPart.RollCallUtil;
-import pers.Brad.CRC.InternetAcessPart.loginedUser;
-import pers.Brad.CRC.InternetAcessPart.Exceptions.IDFormatException;
-import pers.Brad.CRC.InternetAcessPart.Exceptions.UnuseableLoginException;
+import pers.Brad.CRC.CRC.PersonNotFoundException;
+import pers.Brad.CRC.CRC.StudentIdentify;
+import pers.Brad.CRC.CRC.loginedUser;
+import pers.Brad.CRC.CRC.Exceptions.IDFormatException;
+import pers.Brad.CRC.CRC.Exceptions.UnuseableLoginException;
+import pers.Brad.CRC.CRC.StudentIdentify.StudentID;
 
 public class loginController implements Runnable{
 	
@@ -375,9 +376,9 @@ public class loginController implements Runnable{
 	public void run(){
 		if (toSchooled){
 			try{
-				toSchoolDelay0=pers.Brad.CRC.InternetAcessPart.loginedUser.portalCheck();
+				toSchoolDelay0=pers.Brad.CRC.CRC.loginedUser.portalCheck();
 				ProgressS.setProgress(0.5);
-				toSchoolDelay1=pers.Brad.CRC.InternetAcessPart.loginedUser.orderingCheck();
+				toSchoolDelay1=pers.Brad.CRC.CRC.loginedUser.orderingCheck();
 				ProgressS.setProgress(1);
 				SCCText.setFont(Font.font(14));
 				SCCText.setText("校系统连接延迟:"+toSchoolDelay0+"ms, "+toSchoolDelay1+"ms");
@@ -389,7 +390,7 @@ public class loginController implements Runnable{
 		}else{
 			toSchooled=true;
 			try{
-				tobaiduDelay=pers.Brad.CRC.InternetAcessPart.loginedUser.baiduCheck();
+				tobaiduDelay=pers.Brad.CRC.CRC.loginedUser.baiduCheck();
 				ProgressO.setProgress(1);
 				CCText.setFont(Font.font(14));
 				CCText.setText("外网连接延迟:"+tobaiduDelay+"ms");
@@ -545,36 +546,28 @@ public class loginController implements Runnable{
 	
 	private void CardIDLogin(){
 		try {
-			String ID=CardIDLoginTextField.getText();
+			StudentIdentify ID;
 			try{
-				if (ID.length()!=10) throw new NumberFormatException(ID);
-				ID=RollCallUtil.cardIDToID(ID);
-			}catch (NumberFormatException num){
+				ID=StudentIdentify.Build(CardIDLoginTextField.getText());
+				ID=ID.getStudentID();
+			}catch (IDFormatException num){
 				FeedBack("憋瞎(咽口水)打(っ´Ι`)っ", Color.RED, 2000);
 				return;
 			} catch (PersonNotFoundException e) {
 				FeedBack("并没有找到此人,失败惹", Color.RED, 2000);
+				CardIDLoginTextField.setText("");
 				return;
 			}
-			if (ID==null){
-				FeedBack("查无此人",Color.RED,-1);
-				CardIDLoginTextField.setText("");
-			}
 			FeedBack("尝试登陆ID:"+ID,Color.BROWN,5000);
-			final String innerID=ID;
+			final StudentID innerID=(StudentID) ID;
 			new Thread(()->{
 				try {
 					loginedUser=new loginedUser(innerID);
-					Platform.runLater(()->{FeedBack("登陆成功;-) ID:"+innerID,Color.BROWN,2000);});
+					Platform.runLater(()->{FeedBack("登陆成功;-) ID:"+innerID.getValue(),Color.BROWN,2000);});
 				} catch (IOException e) {
 					IOExceptionS(e,true);
-				} catch (IDFormatException e) {
-					FeedBack("登陆失败 ID:"+innerID,Color.BROWN,2000);
-				}
+				} 
 			},"Login Service");
-			loginedUser=new loginedUser(ID);
-		} catch (IDFormatException e) {
-			FeedBack("憋瞎(咽口水)打(っ´Ι`)っ", Color.RED, 2000);
 		} catch (IOException e){
 			IOExceptionS(e,true);
 		}
@@ -606,13 +599,7 @@ class RemeberedLogin{
 			return new loginedUser(cookies);
 		} catch (UnuseableLoginException e) {
 			Throwable t=e.getCause();
-			try{
-				throw t;
-			}catch (IOException ioe){
-				throw new IOException(t);
-			}catch (Throwable t1){
-				return null;
-			}
+			
 		}
 	}
 	
