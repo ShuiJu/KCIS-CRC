@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<BorderPane fx:id="MainPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="670.0" style="-fx-background-image: url( &quot;realbackground.jpg&quot;);" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <left>
+      <Text strokeType="OUTSIDE" strokeWidth="0.0" text=" :D" BorderPane.alignment="CENTER">
+         <font>
+            <Font size="83.0" />
+         </font>
+      </Text>
+   </left>
+   <right>
+      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="XD " BorderPane.alignment="CENTER">
+         <font>
+            <Font size="60.0" />
+         </font>
+      </Text>
+   </right>
+   <center>
+      <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <Rectangle arcHeight="5.0" arcWidth="5.0" height="286.0" layoutX="41.0" layoutY="231.0" opacity="0.6" stroke="#b265656b" strokeType="INSIDE" strokeWidth="0.8" width="407.0">
+               <fill>
+                  <RadialGradient centerX="0.5" centerY="0.5" radius="0.5">
+                     <stops>
+                        <Stop color="#18abb9bf" />
+                        <Stop color="#ffffff25" offset="1.0" />
+                     </stops>
+                  </RadialGradient>
+               </fill>
+            </Rectangle>
+            <Text fx:id="IDReminder" layoutX="94.0" layoutY="292.0" strokeType="OUTSIDE" strokeWidth="0.0" text="你的学号是~!">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Text>
+            <Text fx:id="passwdReminder" layoutX="109.0" layoutY="380.0" strokeType="OUTSIDE" strokeWidth="0.0" text="还有密码">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Text>
+            <TextField fx:id="IDField" layoutX="202.0" layoutY="276.0" onKeyReleased="#IDFieldOnKeyReleased" prefHeight="31.0" prefWidth="203.0" promptText="允许我玩一下君名梗" />
+            <PasswordField fx:id="passwd" layoutX="202.0" layoutY="358.0" onKeyReleased="#PasswdOnKeyReleased" prefHeight="31.0" prefWidth="203.0" promptText="恩我不偷看" />
+            <CheckBox fx:id="RemeberMe" layoutX="139.0" layoutY="389.0" mnemonicParsing="false" prefHeight="82.0" prefWidth="263.0" selected="true" text="记住!" />
+            <Button fx:id="loginButton" layoutX="171.0" layoutY="573.0" mnemonicParsing="false" onAction="#loginClicked" prefHeight="88.0" prefWidth="156.0" text="登录！" />
+            <Text fx:id="FeedBackText" fill="RED" layoutX="193.0" layoutY="434.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Default" textAlignment="CENTER" wrappingWidth="247.314453125" />
+            <Text layoutX="37.0" layoutY="147.0" strokeType="OUTSIDE" strokeWidth="0.0" text="KCIS 车长点名系统">
+               <font>
+                  <Font size="50.0" />
+               </font>
+            </Text>
+            <SplitPane fx:id="ConnectionCheckSplitPane" dividerPositions="0.5" layoutX="86.0" layoutY="549.0" orientation="VERTICAL" pickOnBounds="false" prefHeight="171.0" prefWidth="326.0">
+              <items>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                     <children>
+                        <ProgressIndicator fx:id="ProgressO" layoutX="14.0" layoutY="10.0" prefHeight="62.0" prefWidth="55.0" progress="0.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" />
+                        <Text fx:id="CCText" layoutX="77.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="检测普通网络连接" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="85.0">
+                           <font>
+                              <Font size="15.0" />
+                           </font>
+                        </Text>
+                     </children>
+                  </AnchorPane>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                     <children>
+                        <Text fx:id="SCCText" layoutX="91.0" layoutY="46.0" strokeType="OUTSIDE" strokeWidth="0.0" text="检测学校系统连接" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="85.0">
+                           <font>
+                              <Font size="15.0" />
+                           </font>
+                        </Text>
+                        <ProgressIndicator fx:id="ProgressS" layoutX="14.0" layoutY="10.0" prefHeight="61.0" prefWidth="55.0" progress="0.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" />
+                     </children>
+                  </AnchorPane>
+              </items>
+            </SplitPane>
+            <ToggleButton fx:id="ChangeLoginWay" layoutX="110.0" layoutY="456.0" mnemonicParsing="false" onAction="#ChangeLoginWayOnAction" opacity="0.87" prefHeight="30.0" prefWidth="257.0" text="隐藏的学生卡登录功能\(^o^)/~" />
+            <Text fx:id="CardIDLoginReminder" layoutX="93.0" layoutY="352.0" strokeType="OUTSIDE" strokeWidth="0.0" text="卡号登录" visible="false">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Text>
+            <PasswordField fx:id="CardIDLoginTextField" layoutX="185.0" layoutY="333.0" onKeyReleased="#CardIDLoginOnKeyReleased" prefHeight="25.0" prefWidth="195.0" promptText="CardID" visible="false" />
+         </children>
+      </Pane>
+   </center>
+   <bottom>
+      <Text fx:id="VersionTEXT" strokeType="OUTSIDE" strokeWidth="0.0" text="version: BETA 1.0" underline="true" BorderPane.alignment="CENTER">
+         <font>
+            <Font size="15.0" />
+         </font>
+         <BorderPane.margin>
+            <Insets bottom="20.0" />
+         </BorderPane.margin>
+      </Text>
+   </bottom>
+</BorderPane>

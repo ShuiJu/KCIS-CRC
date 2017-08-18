@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="MainPane" minHeight="820.0" minWidth="670.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <SplitPane fx:id="OutmostSplistPane" dividerPositions="0.08882521489971347" orientation="VERTICAL" prefHeight="700.0" prefWidth="600.0" style="-fx-background-color: transparent;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
+          <AnchorPane maxHeight="60.0" minHeight="60.0" minWidth="160.0">
+               <children>
+                  <MenuButton fx:id="loginedUserBlock" layoutX="481.0" layoutY="-5.0" mnemonicParsing="false" prefHeight="70.0" prefWidth="200.0" text="\%UserName" AnchorPane.bottomAnchor="-5.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="-5.0">
+                     <items>
+                        <CustomMenuItem mnemonicParsing="false" text="loginInfo">
+                           <content>
+                              <VBox prefHeight="70.0" prefWidth="150.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="22.13671875" />
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="22.13671875" />
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+                                 </children>
+                              </VBox>
+                           </content></CustomMenuItem>
+                     </items></MenuButton>
+               </children>
+            </AnchorPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+               <children>
+                  <SplitPane fx:id="MainSplitPane" dividerPositions="0.15" prefHeight="646.0" prefWidth="600.0" style="-fx-background-color: transparent;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <items>
+                      <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="170.0" minHeight="0.0" minWidth="55.0" prefHeight="160.0" prefWidth="100.0">
+                           <children>
+                              <Button fx:id="rollCallButton" layoutY="2.0" maxHeight="300.0" mnemonicParsing="false" onAction="#RollCallCallOnAction" opacity="0.7" prefHeight="87.0" prefWidth="87.0" text="点名" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <Button fx:id="timeRecordButton" disable="true" layoutY="87.0" maxHeight="300.0" mnemonicParsing="false" onAction="#TimeRecordCallOnAction" opacity="0.0" prefHeight="87.0" prefWidth="87.0" text="报站" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                           </children>
+                        </AnchorPane>
+                      <AnchorPane id="mainPane" fx:id="ApplicationDisplay" minHeight="300.0" minWidth="250.0" prefHeight="650.0" prefWidth="500.0">
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets></AnchorPane>
+                    </items>
+                  </SplitPane>
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </children>
+</AnchorPane>
