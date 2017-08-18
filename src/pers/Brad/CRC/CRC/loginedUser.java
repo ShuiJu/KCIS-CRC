@@ -14,9 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import pers.Brad.CRC.CRC.Exceptions.ErrorResponse;
-import pers.Brad.CRC.CRC.Exceptions.IDFormatException;
-import pers.Brad.CRC.CRC.Exceptions.UnuseableLoginException;
 import pers.Brad.CRC.CRC.StudentIdentify.StudentID;
 
 /**
@@ -134,10 +131,10 @@ public class loginedUser implements Cloneable,java.io.Serializable{
 		String IDHandle=SessionCookie.get(MapLoginDefinitier);
 		if (IDHandle==null) throw new IllegalArgumentException("There's no Identify info in the map");
 		try {
-			this.ID=StudentID.Build((SessionCookie.get(IDHandle)));
+			this.ID=StudentID.Build((IDHandle));
 		} catch (IDFormatException e) {
 			throw new UnuseableLoginException(e);
-		} 
+		}
 		SessionCookie.remove(MapLoginDefinitier);
 		this.cookie=Collections.unmodifiableMap(SessionCookie);
 		SessionCookie.put(MapLoginDefinitier, ID.getValue());

@@ -1,50 +1,38 @@
 package pers.Brad.CRC.CRC;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 
-import pers.Brad.CRC.CRC.Exceptions.ErrorResponse;
-import pers.Brad.CRC.CRC.Exceptions.IDFormatException;
-
-public class StudentIdentify implements java.io.Serializable{
+public class StudentIdentify extends BasicIdentify{
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 769641239057630564L;
 	
-	protected final static List<StudentIdentify> buffer=new LinkedList<StudentIdentify>();
+	protected final static IdentifyBufferMap buffer=IdentifyBufferMap.getInstance();
 	
 	public static StudentIdentify Build(String IDOrCardID) throws IDFormatException{
 		Objects.requireNonNull(IDOrCardID);
 		if (!loginedUser.StudentIDChecker(IDOrCardID)) throw new IDFormatException(IDOrCardID);
 		Boolean isStudentID=(IDOrCardID.length()==5);
-		for (StudentIdentify n:buffer)
-			if (n.isStudentID()==isStudentID&&n.getValue().equals(IDOrCardID))
-					return n;
+		StudentIdentify n;
+		if ((n=buffer.get(IDOrCardID))!=null&&n.isStudentID().equals(isStudentID)) return n;
 		if (isStudentID) return new StudentID(IDOrCardID);
 		return new StudentIdentify(IDOrCardID);
 	}
 	
+	public static StudentIdentify Build(BasicIdentify iden) throws IDFormatException {
+		return Build(iden.getValue());
+	}
+	
 	private StudentIdentify(String IDOrCardID){
-		Value=IDOrCardID;
-		if (!isStudentID()) buffer.add(this);
-	}
-	
-	protected final String Value;
-	
-	private StudentID linkedStudentID=null;
-	
-	public String getValue(){
-		return Value;
-	}
-	
-	public Boolean isStudentID() {
-		return false;
+		super(IDOrCardID);
+		if (!isStudentID()) buffer.put(IDOrCardID, this);
 	}
 
+	private StudentID linkedStudentID=null;
+	
 	public StudentID getStudentID() throws NoSuchPersonOnServerException, NoSuchPersonInDataBaseException, IOException, ErrorResponse{
 		if (linkedStudentID!=null) return linkedStudentID; 
 		StudentID ID= StudentID.Build(this);
@@ -92,7 +80,7 @@ public class StudentIdentify implements java.io.Serializable{
 		
 		private StudentID(String ID){
 			super(ID);
-			buffer.add(this);
+			buffer.put(ID, this);
 		}
 		
 		public static StudentID Build(String ID) throws IDFormatException{
@@ -105,14 +93,8 @@ public class StudentIdentify implements java.io.Serializable{
 			Objects.requireNonNull(stu);
 			if (stu.isStudentID()) return (StudentID) stu;
 			if (stu.linkedStudentID!=null) return stu.linkedStudentID;
-			for (StudentIdentify holder:buffer){
-				if (!(holder instanceof StudentID))
-					continue;
-				if (holder.getValue().equals(stu.getValue())) {
-					stu.linkedStudentID=(StudentID) holder;
-					return (StudentID) holder;
-				}
-			}
+			StudentIdentify holder;
+			if ((holder=buffer.get(stu.getValue()))!=null) return (StudentID) holder;
 			return RollCallUtil.cardIDToID(stu);
 		}
 		
@@ -122,7 +104,7 @@ public class StudentIdentify implements java.io.Serializable{
 		}
 		
 		@Override
-		public StudentID getStudentID() {
+		public final StudentID getStudentID() {
 			return this;
 		}
 		
@@ -136,7 +118,7 @@ public class StudentIdentify implements java.io.Serializable{
 		}
 	
 		@Override
-		public Boolean isStudentID() {
+		public final Boolean isStudentID() {
 			return true;
 		}
 	}

@@ -5,7 +5,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import pers.Brad.CRC.CRC.Exceptions.IDFormatException;
 import pers.Brad.CRC.CRC.StudentIdentify.StudentID;
 
 /**

@@ -9,7 +9,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class bilibiliGIFAnalyzer{
+public class BilibiliGIFAnalyzer{
 	
 	private static final String JSON_URL_PATH="http://www.bilibili.com/index/index-icon.json";
 	

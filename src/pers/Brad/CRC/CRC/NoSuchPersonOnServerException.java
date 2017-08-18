@@ -1,7 +1,5 @@
 package pers.Brad.CRC.CRC;
 
-import pers.Brad.CRC.CRC.Exceptions.IDFormatException;
-
 public class NoSuchPersonOnServerException extends PersonNotFoundException{
 
 	/**

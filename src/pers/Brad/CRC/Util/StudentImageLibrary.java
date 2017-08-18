@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -22,8 +23,8 @@ import javax.imageio.ImageIO;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
+import pers.Brad.CRC.CRC.IDFormatException;
 import pers.Brad.CRC.CRC.NoSuchPersonOnServerException;
-import pers.Brad.CRC.CRC.Exceptions.IDFormatException;
 import pers.Brad.CRC.CRC.StudentIdentify.StudentID;
 
 public final class StudentImageLibrary {
@@ -150,8 +151,7 @@ public final class StudentImageLibrary {
 			if (!(t instanceof Exception)) throw new Error(t);
 			if (t instanceof IOException) throw (IOException) t;
 			if (t instanceof NoSuchImageOnServerException) throw (NoSuchImageOnServerException) t;
-			if (t instanceof RuntimeException) throw (RuntimeException) t;
-			throw new RuntimeException((Exception) t);
+			throw new Error(t);
 		}
 	}
 	
@@ -190,22 +190,23 @@ public final class StudentImageLibrary {
 		cacheMap.clear();
 	}
 	
-	private static ThreadPoolExecutor exc=(ThreadPoolExecutor) Executors.newFixedThreadPool(2);// need to test the number out, sometime the school network is terrible
-	private static volatile Boolean EnableAutoRedownload=true;
-	private static final Runnable redownloadWhenNothingToDo=()->{ //when thread pool is idle, it should check whether there is a image failed to download and then redownload it.
-		if (EnableAutoRedownload) redownloadExceptionedImages();
+	private static ThreadPoolExecutor exc=(ThreadPoolExecutor) Executors.newFixedThreadPool(2);
+	// need to test the number out, sometime the school network is terrible
+	private static AtomicBoolean EnableAutoRedownload=new AtomicBoolean(true);
+	private static final Runnable redownloadWhenNothingToDo=()->{ 
+		//when thread pool is idle, it should check whether there is a image failed to download and then redownload it.
+		if (EnableAutoRedownload.get()) redownloadExceptionedImages();
 	};
 	
 	public static Future<Image> preloadStudentImage(final StudentID StudentID) {
 		Objects.requireNonNull(StudentID);
 		if (cacheMap.containsKey(StudentID)) return cacheMap.get(StudentID); //if the task already exists, return the existing value
 		Future<Image> future;
-		if ((future=cacheMap.get(StudentID))!=null) return future;
 		future = exc.submit(()->{
 			HttpURLConnection hcon=(HttpURLConnection) new URL(new StringBuilder(60).append(StudentImageURL).append(StudentID.getValue())
 				.append(ImageExtensionName).toString()).openConnection();
 			if (hcon.getResponseCode()==404){
-				throw new NoSuchPersonOnServerException(StudentID);
+				throw new NoSuchImageOnServerException(StudentID);
 			}
 			Image image = new Image(hcon.getInputStream());
 			Exception imageloade;
@@ -239,7 +240,7 @@ public final class StudentImageLibrary {
 	}
 	
 	public static void setAutoRedownload(Boolean enable) { //should be disable when high Internet usage
-		EnableAutoRedownload=enable;
+		EnableAutoRedownload.set(enable);
 	}
 	
 	public static class NoSuchImageOnServerException extends NoSuchPersonOnServerException{

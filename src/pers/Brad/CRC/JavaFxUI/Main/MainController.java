@@ -19,7 +19,6 @@ import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.stage.Stage;
 import pers.Brad.CRC.CRC.RollCallUtil;
-import pers.Brad.CRC.CRC.Exceptions.IDFormatException;
 import pers.Brad.CRC.JavaFxUI.Main.RollCall.RollCallField;
 import pers.Brad.CRC.Util.StudentImageLibrary;
 
@@ -28,11 +27,7 @@ public class MainController{
 
 	public void start(Stage stage,RollCallUtil rcl) throws Exception {
 		rcl.getShouldBeStudentInfoList().forEach((stu)->{
-			try {
 				StudentImageLibrary.preloadStudentImage(stu.getID());
-			} catch (IDFormatException e) {
-				throw new InternalError(e);
-			}
 		});
 		//setup confirm
 		if (VerticalBackgroundImage==null||HorizontalBackgroundImage==null) throw new java.lang.ExceptionInInitializerError();

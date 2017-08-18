@@ -39,11 +39,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import pers.Brad.CRC.CRC.IDFormatException;
 import pers.Brad.CRC.CRC.PersonNotFoundException;
 import pers.Brad.CRC.CRC.StudentIdentify;
+import pers.Brad.CRC.CRC.UnuseableLoginException;
 import pers.Brad.CRC.CRC.loginedUser;
-import pers.Brad.CRC.CRC.Exceptions.IDFormatException;
-import pers.Brad.CRC.CRC.Exceptions.UnuseableLoginException;
 import pers.Brad.CRC.CRC.StudentIdentify.StudentID;
 
 public class loginController implements Runnable{
@@ -109,14 +109,13 @@ public class loginController implements Runnable{
 		if (!isAutoLogin) FeedBack("检查中...\\(^o^)/~",Color.BROWN,1000);
 		String ID=IDField.getText();
 		try{
-			Integer.parseInt(ID);
-			if (ID.length()!=5) throw new Exception();
+			StudentID iid=StudentID.Build(ID);
 			try {
 				if (passwd.getText().indexOf(" ")!=-1){
 					FeedBack("肯定错误的密码?�▽�?", Color.RED, 5000);
 					return;
 				}
-				loginedUser=new loginedUser(ID,passwd.getText().toCharArray());
+				loginedUser=new loginedUser(iid,passwd.getText().toCharArray());
 				loginCallBack();
 			} catch (UnuseableLoginException e) {
 				if (!isAutoLogin) clearPasswdField();
@@ -135,7 +134,7 @@ public class loginController implements Runnable{
 			} catch (IOException e) {
 				FeedBack("网络错误？？Σ( ° △ °|||)︴",Color.RED,5000);
 			}//Train Station Lullaby (Lullatone Remix) - remix
-		}catch (NumberFormatException e){
+		}catch (IDFormatException e){
 			if (!isAutoLogin){
 				IDField.setText("");
 				passwd.setText("");
@@ -261,7 +260,7 @@ public class loginController implements Runnable{
 	public loginedUser start(Stage stage) throws IOException {
 		// TODO Auto-generated method stub
 		long time=System.currentTimeMillis();
-		FXMLLoader fxmll=new FXMLLoader(getClass().getResource("login.fxml"));
+		FXMLLoader fxmll=new FXMLLoader(loginController.class.getResource("login.fxml"));
 		fxmll.setController(this);
 		fxmll.load();
 		System.out.println("FXMLload time:"+(System.currentTimeMillis()-time));
@@ -598,8 +597,8 @@ class RemeberedLogin{
 		try {
 			return new loginedUser(cookies);
 		} catch (UnuseableLoginException e) {
-			Throwable t=e.getCause();
-			
+			if (e.getCause() instanceof IOException) throw (IOException) e.getCause();
+			throw new IOException(e);
 		}
 	}
 	
@@ -674,7 +673,7 @@ class RemeberedLogin{
 			pre.removeNode();
 			return;
 		}
-		pre.put(registryIDKey, us.ID);
+		pre.put(registryIDKey, us.ID.getValue());
 		pre.putInt(registryPasswdLength, length);
 		Map<String, String> cookie = us.getCookie();
 		StringBuilder sb=new StringBuilder();

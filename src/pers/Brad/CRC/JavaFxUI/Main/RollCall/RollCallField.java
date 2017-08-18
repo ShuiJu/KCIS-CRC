@@ -33,16 +33,18 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import pers.Brad.CRC.CRC.ConnectionCheck;
+import pers.Brad.CRC.CRC.ErrorResponse;
+import pers.Brad.CRC.CRC.IDFormatException;
 import pers.Brad.CRC.CRC.MapGenerater;
 import pers.Brad.CRC.CRC.NoSuchPersonInDataBaseException;
 import pers.Brad.CRC.CRC.NoSuchPersonOnServerException;
 import pers.Brad.CRC.CRC.PersonNotFoundException;
 import pers.Brad.CRC.CRC.RollCallUtil;
-import pers.Brad.CRC.CRC.StanderStudent;
-import pers.Brad.CRC.CRC.loginedUser;
-import pers.Brad.CRC.CRC.Exceptions.ErrorResponse;
-import pers.Brad.CRC.CRC.Exceptions.IDFormatException;
 import pers.Brad.CRC.CRC.RollCallUtil.NotTheDayException;
+import pers.Brad.CRC.CRC.StanderStudent;
+import pers.Brad.CRC.CRC.StudentIdentify;
+import pers.Brad.CRC.CRC.StudentIdentify.StudentID;
+import pers.Brad.CRC.CRC.loginedUser;
 import pers.Brad.CRC.Util.StudentImageLibrary;
 
 public class RollCallField extends AnchorPane{
@@ -237,14 +239,14 @@ public class RollCallField extends AnchorPane{
 //			民办新北郊15节5班
 		}
 		
-		private final String ID;
+		private final StudentID ID;
 		private final String Name;
 		private final String LineID;
 		private Boolean isOn=false;
 		public final StanderStudent stu;
 		
 		public String getID(){
-			return ID;
+			return ID.getValue();
 		}
 		
 		public String getName(){
@@ -342,7 +344,16 @@ public class RollCallField extends AnchorPane{
 		}
 	}
 	
-	public void add(String CardID){
+	public void add(String CardID) {
+		try {
+			add(StudentIdentify.Build(CardID));
+		}  catch (IDFormatException e) {
+			logger.log(Level.INFO, CardID+" failed to add to roll call util because of "+e.getClass().getSimpleName());
+			onStudentInfo.setItems(FXCollections.observableArrayList("错误输入|ू･ω･` )"));
+		}
+	}
+	
+	public void add(StudentIdentify CardID){
 		logger.log(Level.INFO, CardID+" adding");
 		try {
 			if (tan90.getException()==null&&tan90.getProgress()==1) Pic.setImage(tan90);
@@ -366,9 +377,6 @@ public class RollCallField extends AnchorPane{
 					}
 				}
 			}
-		} catch (IDFormatException e) {
-			logger.log(Level.INFO, CardID+" failed to add to roll call util because of "+e.getClass().getSimpleName());
-			onStudentInfo.setItems(FXCollections.observableArrayList("错误输入|ू･ω･` )"));
 		} catch (NoSuchPersonInDataBaseException e) {
 			logger.log(Level.INFO, CardID+" failed to add to roll call util because of "+e.getClass().getSimpleName(),e);
 			onStudentInfo.setItems(FXCollections.observableArrayList("∑(っ°Д°;)っ卧槽，数据库没有这个人"));
@@ -383,8 +391,6 @@ public class RollCallField extends AnchorPane{
 						CardID=RollCallUtil.cardIDToID(CardID);
 						add(CardID);
 						info.setContentText("已成功更新数据库 并添加了名单 ヾﾉ≧∀≦)o");
-					} catch (IDFormatException e1) {
-						throw new InternalError(e1);
 					} catch (PersonNotFoundException e1) {
 						info.setContentText("刷新本地数据库成功但是依旧没有找到数据 (*｀皿´*)ﾉ ,请直接输入学生的学号(。-ω-)zzz");
 						return;
@@ -407,7 +413,7 @@ public class RollCallField extends AnchorPane{
 			logger.log(Level.INFO, CardID+" failed to add to roll call util because of "+e.getClass().getSimpleName(),e);
 			onStudentInfo.setItems(FXCollections.observableArrayList("这个人不存在的 tan90!","","",e.getClass().getSimpleName()));
 			if (tan90!=null&&tan90.getException()==null) Pic.setImage(tan90);
-			if (CardID.length()==10){
+			if (!CardID.isStudentID()){
 				try {
 					StanderStudent stu=RollCallUtil.getStanderStudentByCardIDFromOrdering(CardID);
 					try{
@@ -415,13 +421,11 @@ public class RollCallField extends AnchorPane{
 					} catch (PersonNotFoundException e2){
 						Pic.setImage(Default_0);
 					}
-					onStudentInfo.setItems(FXCollections.observableArrayList(stu.getID(),stu.getName(),
+					onStudentInfo.setItems(FXCollections.observableArrayList(stu.getID().getValue(),stu.getName(),
 							"你的信息在查餐系统上存在但是无法获取的具体信息,一般情况下TA应该为临时乘车,TA的信息仍会上传"));
 				} catch (PersonNotFoundException e1) {
 				} catch (IOException e1) {
 					IOExceptionH(e1);
-				} catch (IDFormatException e1) {
-					throw new InternalError(e1);
 				}
 			}else{
 				try {
@@ -431,12 +435,10 @@ public class RollCallField extends AnchorPane{
 					} catch (PersonNotFoundException e2){
 						Pic.setImage(Default_0);
 					}
-					onStudentInfo.setItems(FXCollections.observableArrayList(stu.getID(),stu.getName(),"","-----------------",
+					onStudentInfo.setItems(FXCollections.observableArrayList(stu.getID().getValue(),stu.getName(),"","-----------------",
 							"你的信息在查餐系统上存在","但是无法获取的具体信息","一般情况下TA应该为临时乘车","TA的信息仍会上传","ゞ(o｀Д´o)"));
 				} catch (PersonNotFoundException e1) {
-				} catch (IDFormatException e1) {
-					throw new InternalError(e1);
-				} catch (IOException e1) {
+				}  catch (IOException e1) {
 					IOExceptionH(e1);
 				}
 			}
@@ -476,7 +478,7 @@ public class RollCallField extends AnchorPane{
 			if (back.get().getButtonData().equals(ButtonData.CANCEL_CLOSE))
 				return;
 			try {
-				rcu.remove(handle.getID());
+				rcu.remove(StudentID.Build(handle.getID()));
 				RollCalledList.getItems().remove(RollCalledListIndex);
 				bufferMap.get(handle.stu).setIsOnCar(false);;
 				onCarList.refresh();
@@ -494,10 +496,8 @@ public class RollCallField extends AnchorPane{
 	private void changeInfoDisplay(StanderStudent stu) throws IOException{
 		onStudentInfo.getItems().clear();
 		try {
-			if (!stu.getID().equals("06265"))Pic.setImage(StudentImageLibrary.getStudentImage(stu.getID()));
+			if (!stu.getID().getValue().equals("06265")) Pic.setImage(StudentImageLibrary.getStudentImage(stu.getID()));
 			else Pic.setImage(Senior);
-		} catch (IDFormatException e1) {
-			throw new InternalError(e1);
 		} catch (NoSuchPersonOnServerException e) {
 			if (stu.getImageURL()!=null){
 				Pic.setImage(new Image(((HttpURLConnection)stu.getImageURL().openConnection()).getInputStream()));
@@ -506,7 +506,7 @@ public class RollCallField extends AnchorPane{
 			}
 		}
 		ObservableList<String> info = FXCollections.observableArrayList(
-				stu.getID(),stu.getName(),
+				stu.getID().getValue(),stu.getName(),
 				stu.getLineID()!=StanderStudent.NA?stu.getLineID():"不在任何车上",
 				stu.getLineID()==null?!stu.getLineID().equals(StanderStudent.NA)?
 				(stu.getID().equals(rcu.user.ID)?"车长大人":(stu.getLineID().equals(rcu.LineID)?"自己人自己人":("零食乘车! 原味(原为):"+stu.getLineID())))

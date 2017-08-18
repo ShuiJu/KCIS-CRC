@@ -6,8 +6,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import pers.Brad.CRC.CRC.Exceptions.ErrorResponse;
-
 /**
  * Connection Check to portal.kcisec.com, www.baidu.com, www.google.com, ordering.kcisec.com
  * @author wusatosi/Brad.Wu
