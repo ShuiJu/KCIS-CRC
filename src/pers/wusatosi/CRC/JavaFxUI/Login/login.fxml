@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<BorderPane fx:id="MainPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="670.0" style="-fx-background-image: url( &quot;realbackground.jpg&quot;);" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane fx:id="MainPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="670.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <left>
       <Text strokeType="OUTSIDE" strokeWidth="0.0" text=" :D" BorderPane.alignment="CENTER">
          <font>
@@ -60,30 +60,6 @@
                   <Font size="50.0" />
                </font>
             </Text>
-            <SplitPane fx:id="ConnectionCheckSplitPane" dividerPositions="0.5" layoutX="86.0" layoutY="549.0" orientation="VERTICAL" pickOnBounds="false" prefHeight="171.0" prefWidth="326.0">
-              <items>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-                     <children>
-                        <ProgressIndicator fx:id="ProgressO" layoutX="14.0" layoutY="10.0" prefHeight="62.0" prefWidth="55.0" progress="0.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" />
-                        <Text fx:id="CCText" layoutX="77.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="检测普通网络连接" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="85.0">
-                           <font>
-                              <Font size="15.0" />
-                           </font>
-                        </Text>
-                     </children>
-                  </AnchorPane>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-                     <children>
-                        <Text fx:id="SCCText" layoutX="91.0" layoutY="46.0" strokeType="OUTSIDE" strokeWidth="0.0" text="检测学校系统连接" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="85.0">
-                           <font>
-                              <Font size="15.0" />
-                           </font>
-                        </Text>
-                        <ProgressIndicator fx:id="ProgressS" layoutX="14.0" layoutY="10.0" prefHeight="61.0" prefWidth="55.0" progress="0.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" />
-                     </children>
-                  </AnchorPane>
-              </items>
-            </SplitPane>
             <ToggleButton fx:id="ChangeLoginWay" layoutX="110.0" layoutY="456.0" mnemonicParsing="false" onAction="#ChangeLoginWayOnAction" opacity="0.87" prefHeight="30.0" prefWidth="257.0" text="隐藏的学生卡登录功能\(^o^)/~" />
             <Text fx:id="CardIDLoginReminder" layoutX="93.0" layoutY="352.0" strokeType="OUTSIDE" strokeWidth="0.0" text="卡号登录" visible="false">
                <font>
@@ -91,6 +67,7 @@
                </font>
             </Text>
             <PasswordField fx:id="CardIDLoginTextField" layoutX="185.0" layoutY="333.0" onKeyReleased="#CardIDLoginOnKeyReleased" prefHeight="25.0" prefWidth="195.0" promptText="CardID" visible="false" />
+            <AnchorPane fx:id="ConnectionCheckPane" layoutX="82.0" layoutY="539.0" prefHeight="173.0" prefWidth="325.0" />
          </children>
       </Pane>
    </center>

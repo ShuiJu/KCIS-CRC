@@ -1,4 +1,4 @@
-package pers.Brad.CRC.Util;
+package pers.wusatosi.CRC.Util;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,9 +23,9 @@ import javax.imageio.ImageIO;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
-import pers.Brad.CRC.CRC.IDFormatException;
-import pers.Brad.CRC.CRC.NoSuchPersonOnServerException;
-import pers.Brad.CRC.CRC.StudentIdentify.StudentID;
+import pers.wusatosi.CRC.CRCApi.IDFormatException;
+import pers.wusatosi.CRC.CRCApi.NoSuchPersonOnServerException;
+import pers.wusatosi.CRC.CRCApi.StudentIdentify.StudentID;
 
 public final class StudentImageLibrary {
 	

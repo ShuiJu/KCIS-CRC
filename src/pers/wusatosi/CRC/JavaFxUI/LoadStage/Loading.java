@@ -1,4 +1,4 @@
-package pers.Brad.CRC.JavaFxUI.LoadStage;
+package pers.wusatosi.CRC.JavaFxUI.LoadStage;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,7 +19,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import pers.Brad.CRC.Util.BilibiliGIFAnalyzer;
+import pers.wusatosi.CRC.Util.BilibiliGIFAnalyzer;
 
 public class Loading {
 	

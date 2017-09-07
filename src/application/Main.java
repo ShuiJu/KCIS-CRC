@@ -3,11 +3,11 @@ package application;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
-import pers.Brad.CRC.CRC.RollCallUtil;
-import pers.Brad.CRC.CRC.loginedUser;
-import pers.Brad.CRC.JavaFxUI.LoadStage.Loading;
-import pers.Brad.CRC.JavaFxUI.Login.loginController;
-import pers.Brad.CRC.JavaFxUI.Main.MainController;
+import pers.wusatosi.CRC.CRCApi.RollCallUtil;
+import pers.wusatosi.CRC.CRCApi.loginedUser;
+import pers.wusatosi.CRC.JavaFxUI.LoadStage.Loading;
+import pers.wusatosi.CRC.JavaFxUI.Login.loginController;
+import pers.wusatosi.CRC.JavaFxUI.Main.MainController;
 
 
 public class Main extends Application {

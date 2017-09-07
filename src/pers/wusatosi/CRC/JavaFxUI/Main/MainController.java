@@ -1,4 +1,4 @@
-package pers.Brad.CRC.JavaFxUI.Main;
+package pers.wusatosi.CRC.JavaFxUI.Main;
 
 
 import javafx.collections.ObservableList;
@@ -18,9 +18,9 @@ import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.stage.Stage;
-import pers.Brad.CRC.CRC.RollCallUtil;
-import pers.Brad.CRC.JavaFxUI.Main.RollCall.RollCallField;
-import pers.Brad.CRC.Util.StudentImageLibrary;
+import pers.wusatosi.CRC.CRCApi.RollCallUtil;
+import pers.wusatosi.CRC.JavaFxUI.Main.RollCall.RollCallField;
+import pers.wusatosi.CRC.Util.StudentImageLibrary;
 
 public class MainController{
 	private static final String layoutFilePath="mainlayout.fxml";

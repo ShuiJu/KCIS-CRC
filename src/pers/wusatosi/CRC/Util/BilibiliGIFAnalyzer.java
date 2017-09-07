@@ -1,4 +1,4 @@
-package pers.Brad.CRC.Util;
+package pers.wusatosi.CRC.Util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

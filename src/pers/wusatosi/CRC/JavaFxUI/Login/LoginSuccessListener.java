@@ -1,9 +1,9 @@
-package pers.Brad.CRC.JavaFxUI.Login;
+package pers.wusatosi.CRC.JavaFxUI.Login;
 
 import java.util.function.Consumer;
 
-import pers.Brad.CRC.CRC.loginedUser;
+import pers.wusatosi.CRC.CRCApi.loginedUser;
 
 public interface LoginSuccessListener extends Consumer<loginedUser>{
-	public void loginEvent(loginedUser user);
+	
 }

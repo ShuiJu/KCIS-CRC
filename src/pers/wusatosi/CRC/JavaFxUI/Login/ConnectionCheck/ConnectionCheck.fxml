@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<fx:root maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="171.0" prefWidth="326.0" type="AnchorPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <SplitPane fx:id="ConnectionCheckSplitPane" dividerPositions="0.5" layoutY="-7.0" orientation="VERTICAL" pickOnBounds="false" prefHeight="171.0" prefWidth="326.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <items>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+               <children>
+                  <ProgressIndicator fx:id="ProgressO" layoutX="14.0" layoutY="10.0" prefHeight="62.0" prefWidth="55.0" progress="0.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" />
+                  <Text fx:id="CCText" layoutX="77.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="检测普通网络连接" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="85.0">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Text>
+               </children>
+            </AnchorPane>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+               <children>
+                  <Text fx:id="SCCText" layoutX="91.0" layoutY="46.0" strokeType="OUTSIDE" strokeWidth="0.0" text="检测学校系统连接" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="85.0">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Text>
+                  <ProgressIndicator fx:id="ProgressS" layoutX="14.0" layoutY="10.0" prefHeight="61.0" prefWidth="55.0" progress="0.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" />
+               </children>
+            </AnchorPane>
+         </items>
+      </SplitPane>
+   </children>
+</fx:root>

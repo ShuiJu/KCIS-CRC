@@ -1,34 +1,25 @@
-package pers.Brad.CRC.JavaFxUI.Login;
+package pers.wusatosi.CRC.JavaFxUI.Login;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
+import java.util.concurrent.ExecutionException;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
@@ -36,26 +27,27 @@ import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import pers.Brad.CRC.CRC.IDFormatException;
-import pers.Brad.CRC.CRC.PersonNotFoundException;
-import pers.Brad.CRC.CRC.StudentIdentify;
-import pers.Brad.CRC.CRC.UnuseableLoginException;
-import pers.Brad.CRC.CRC.loginedUser;
-import pers.Brad.CRC.CRC.StudentIdentify.StudentID;
+import javafx.util.Duration;
 
-public class loginController implements Runnable{
+import pers.wusatosi.CRC.CRCApi.IDFormatException;
+import pers.wusatosi.CRC.CRCApi.PersonNotFoundException;
+import pers.wusatosi.CRC.CRCApi.StudentIdentify;
+import pers.wusatosi.CRC.CRCApi.StudentIdentify.StudentID;
+import pers.wusatosi.CRC.CRCApi.UnuseableLoginException.RefusedLoginException;
+import pers.wusatosi.CRC.CRCApi.loginedUser;
+import pers.wusatosi.CRC.JavaFxUI.UIEventProcesser;
+import pers.wusatosi.CRC.JavaFxUI.Login.ConnectionCheck.ConnectionCheckHelper;
+import pers.wusatosi.CRC.Util.CachedSession;
+import pers.wusatosi.CRC.Util.CachedSession.SessionInfo;;
+
+public class loginController {
 	
+	//For FXML loader
 	public loginController(){}
 	
 	public loginedUser loginedUser;
-	
-	private static LoginSuccessListener loginlistener;	
-	public static void setListener(LoginSuccessListener listener){
-		loginlistener=listener;
-	}
 	
 	@FXML
 	public BorderPane MainPane;
@@ -86,84 +78,132 @@ public class loginController implements Runnable{
 		login(false);
 	}
 	
+	private class isCachedSession{
+		Boolean Value = false;
+	}
+	
 	private Boolean connectionChecked=false;
-	private RemeberedLogin RemeberMeCacheUser;
 	
 	private void login(Boolean isAutoLogin){
+		
 		if (!connectionChecked) return;
+		
 		if (ChangeLoginWay.isSelected()) CardIDLogin();
-		if (!isAutoLogin) FeedBack("正在登陆pwp",Color.BLUE,-1);
-		if (!isAutoLogin&&RemeberMeCacheUser!=null&&RemeberMeCacheUser.doHaveRemeberedLogin!=false){
-			try {
-				this.loginedUser=RemeberMeCacheUser.login();
-				loginCallBack();
-			} catch (IOException e) {
-				IOExceptionS(e,true);
-			} catch (IDFormatException e) {
-				FeedBack("缓存不可用?这可能是个假的缓存?...",Color.RED,4000);
-				passwd.setText("");
-			}
+		
+		if (!isAutoLogin) FeedBack("正在登陆pwp",Color.BLUE,1000);
+		if (!isAutoLogin&&CachedSession.doHaveInfomation()&&((isCachedSession) passwd.getUserData()).Value){
+			System.out.println("Enter");
+			Task<loginedUser> task = 
+				UIEventProcesser.getInstance().submit(()->{
+					return CachedSession.getInstance().getLoginedUserByCookie();
+				});
+			task.setOnSucceeded((state)->{
+				try {
+					this.loginedUser = task.get();
+				} catch (InterruptedException | ExecutionException e) {
+					throw new Error(e);
+				}
+				FeedBack("登录成功!pwp",Color.BLUE,-1);
+				loginCallBack(true);
+			});
+			task.setOnFailed((failed) -> {
+				Throwable t = task.getException();
+				if (t instanceof Error) {
+					Thread current = Thread.currentThread();
+					current.getUncaughtExceptionHandler().uncaughtException(current, (Error) t); 
+				}
+				if (t instanceof Exception) {
+					Exception e = (Exception) t;
+					e.printStackTrace();
+					if (e instanceof IOException)
+						IOExceptionS((IOException) e,true);
+					if (e instanceof IDFormatException) {
+						FeedBack("缓存不可用?这可能是个假的缓存?...",Color.RED,4000);
+						passwd.setText("");
+					}
+					FeedBack(e.toString(), Color.RED, -1);
+					throw new Error(e);
+				}
+			});
 			return;
 		}
+		
 		System.out.println("Try Login In ID:"+IDField.getText()+" isAutoLogin:"+isAutoLogin);
 		if (!isAutoLogin) FeedBack("检查中...\\(^o^)/~",Color.BROWN,1000);
 		String ID=IDField.getText();
-		try{
-			StudentID iid=StudentID.Build(ID);
-			try {
-				if (passwd.getText().indexOf(" ")!=-1){
-					FeedBack("肯定错误的密码?�▽�?", Color.RED, 5000);
-					return;
-				}
-				loginedUser=new loginedUser(iid,passwd.getText().toCharArray());
-				loginCallBack();
-			} catch (UnuseableLoginException e) {
-				if (!isAutoLogin) clearPasswdField();
-				if (!isAutoLogin){
-					if (e.msg.equals("密碼錯誤!")){
-						FeedBack("错误的账户或密码〒▽〒?", Color.RED, 5000);
-						return;
-					}
-					if (e.msg.equals("還未進行程式授權")){
-						FeedBack("你是假的车长(￣_,￣ )(未授权?)",Color.RED,5000);
-						clearIDField();
-						return;
-					}
-					FeedBack(e.msg,Color.BROWN,5000);
-				}
-			} catch (IOException e) {
-				FeedBack("网络错误？？Σ( ° △ °|||)︴",Color.RED,5000);
-			}//Train Station Lullaby (Lullatone Remix) - remix
-		}catch (IDFormatException e){
+		String password = this.passwd.getText();
+		if ((!pers.wusatosi.CRC.CRCApi.loginedUser.StudentIDChecker(ID))||password.indexOf(" ")!=-1) {
 			if (!isAutoLogin){
 				IDField.setText("");
-				passwd.setText("");
+				clearPasswdField();
 				FeedBack("这个显然不能用吧喂W(￣_￣?)W",Color.RED,4000);
+				return;
 			}
-		}catch (Exception e){
-			e.printStackTrace();
 		}
+		
+		UIEventProcesser.getInstance()
+				.submit(()->{
+					if (!isAutoLogin) passwd.setDisable(true);
+					StudentID iid = StudentID.Build(ID);
+					return new loginedUser(iid, password.toCharArray());
+				})
+			.setOnSucceededReallyFriendly((event) -> {
+				passwd.setDisable(false);
+				try {
+					loginedUser = event.getThis().get();
+				} catch (InterruptedException | ExecutionException e) {
+					throw new Error(e);
+				}
+				loginCallBack(false);
+			})
+			.setDoLetUncaughtExceptionHandlerHandleThrowableExceptException(true)
+			.setOnFailedByExceptionReallyFriendly((e)->{
+			passwd.setDisable(false);
+			if (e instanceof RefusedLoginException) 
+				if (!isAutoLogin) {
+					clearPasswdField();
+					switch(((RefusedLoginException) e).getErrorType()) {
+					case UnverifiedUser:
+						FeedBack("你是假的车长(￣_,￣ )(未授权?)",Color.RED,5000);
+						clearIDField();
+						break;
+					case WrongUserNameOrPassword:
+						FeedBack("错误的账户或密码〒▽〒?", Color.RED, 5000);
+						clearPasswdField();
+						break;
+					default:
+						FeedBack(((RefusedLoginException) e).getErrorType().toString(),Color.RED,5000);
+						clearPasswdField();
+					}
+				}
+			if (e instanceof IOException) {
+				FeedBack("网络错误？？Σ( ° △ °|||)︴",Color.RED,5000);
+			}
+			if (e instanceof IDFormatException) {
+				if (!isAutoLogin){
+					IDField.setText("");
+					clearPasswdField();
+					FeedBack("这个显然不能用吧喂W(￣_￣?)W",Color.RED,4000);
+					return;
+				}
+			}
+		});
 	}
 
-	private void loginCallBack(){
+	private void loginCallBack(Boolean isCachedSession){
 		FeedBack("登陆成功O(∩_∩)O?!",Color.BLUE,-1);
-		try {
-			RemeberedLogin.writeIn(loginedUser, passwd.getText().length(), RemeberMe.isSelected());
-		} catch (IOException e1) {
-			FeedBack("登录成功但无法将用户缓存写入本地",Color.RED,-1);
-		}
-		System.out.println(loginlistener);
-		if (loginlistener!=null) loginlistener.loginEvent(loginedUser);
-		Platform.runLater(()->{ms.close();});
+		if (!isCachedSession)
+			UIEventProcesser.quickSubmit(() ->
+				System.out.println(CachedSession.getInstance().write(new SessionInfo(loginedUser, passwd.getText().length()))));
+		new Timeline(new KeyFrame(new Duration(500), (action) -> ms.close())).play();
 	}
 	
 	private Boolean KeyReleased=false;
 	
 	@FXML
 	private void IDFieldOnKeyReleased(KeyEvent event){
-		if (RemeberMeCacheUser!=null&&RemeberMeCacheUser.doHaveRemeberedLogin){
+		if (CachedSession.doHaveInfomation()){
 			if (event.getCode().equals(KeyCode.ENTER)) login(false);
-			passwd.setText("");
 		}
 		if (!KeyReleased&&IDField.getText()!=null&&IDField.getText().length()==5){
 			passwd.requestFocus();
@@ -174,57 +214,38 @@ public class loginController implements Runnable{
 	private int lastTimeLength=-1;	
 	@FXML
 	private void PasswdOnKeyReleased(KeyEvent event){
+		if (event.getCode().equals(KeyCode.TAB)) return;
 		if (FeedBackText.getText().equals("肯定错误的密码?�▽�?")) cancelFeedBack();
-		if (passwd.getText()==null) return;
+		if (passwd.getText() == null) return;
 		int length=passwd.getText().length();
 		if (event.getCode().equals(KeyCode.ENTER)){
 			login(false);
 			lastTimeLength=length;
-		}else{
-			if (RemeberMeCacheUser!=null){
-				RemeberMeCacheUser=null;
-				passwd.setText("");
-			}
+			return;
 		}
+		((isCachedSession) passwd.getUserData()).Value = false;
 		if (length==lastTimeLength){
 			lastTimeLength=length;
 			return;
 		}
 		lastTimeLength=length;
-		new Thread("Auto Login By Time Cycle"){
-			public void run(){
-				String str=passwd.getText();
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e){}
-				if (passwd.getText()!=null&&passwd.getText().equals(str)) login(true);
-			}
-		}.start();;
+		final String str = passwd.getText();
+		UIEventProcesser.quickSubmit(()->{
+			System.out.println("Getin check");
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e){}
+			if (passwd.getText()!=null&&passwd.getText().equals(str)) login(true);
+		});
 	}
 	
-	Boolean OnAction=false;
-	
-	public void FeedBack(String msg,Color color,int time){
-		if (OnAction) while(OnAction);
+	public void FeedBack(final String msg,Color color,int time){
 		FeedBackText.setVisible(false);
 		FeedBackText.setFill(color); 
 		FeedBackText.setText(msg);
 		FeedBackText.setVisible(true);
-		if (time!=-1)
-			new Thread(){
-				public void run(){
-					try {
-						String correctCheck=msg;
-						sleep(time);
-						if (correctCheck.equals(FeedBackText.getText()))FeedBackText.setVisible(false);
-						OnAction=false;
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
-				}
-			}.start();;
+		if (time > 0)
+			cancelFeedBack(time);
 	}
 	
 	public void cancelFeedBack(){
@@ -232,18 +253,14 @@ public class loginController implements Runnable{
 	}
 	
 	public void cancelFeedBack(int delay){
-		new Thread("Delaied CancelFeedBack"){
-			public void run(){
-				try {
-					String str=FeedBackText.getText();
-					Thread.sleep(delay);
-					if (FeedBackText.getText().equals(str)) cancelFeedBack();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}.start();
+		if (delay < 1) {
+			cancelFeedBack();
+		}else {
+			final String str = FeedBackText.getText();
+			new Timeline(new KeyFrame(new Duration(delay), (action) ->  {
+				if (str.equals(FeedBackText.getText()))FeedBackText.setVisible(false);
+			})).play();
+		}
 	}
 	
 	void clearIDField(){
@@ -258,48 +275,55 @@ public class loginController implements Runnable{
 	private Stage ms;
 	
 	public loginedUser start(Stage stage) throws IOException {
-		// TODO Auto-generated method stub
+		
 		long time=System.currentTimeMillis();
+		
 		FXMLLoader fxmll=new FXMLLoader(loginController.class.getResource("login.fxml"));
 		fxmll.setController(this);
 		fxmll.load();
+		
 		System.out.println("FXMLload time:"+(System.currentTimeMillis()-time));
 		time=System.currentTimeMillis();
+		
 		stage.setScene(new Scene(MainPane));
 		stage.setHeight(820);
 		stage.setWidth(670);
 		stage.setResizable(false);
 		stage.setTitle("KCIS车长点名系统");
-		System.out.println("Set Scene properties:"+(System.currentTimeMillis()-time));
-		time=System.currentTimeMillis();
+		
 		ObservableList<Image> a = stage.getIcons();
 		a.add(new Image(getClass().getResourceAsStream("Icon.jpg")));
-		System.out.println("Show:"+(System.currentTimeMillis()-time));
+		
+		System.out.println("Set Scene properties:"+(System.currentTimeMillis()-time));
 		time=System.currentTimeMillis();
+		
 		IDField.requestFocus();
 		IDField.setText("");
 		FeedBackText.setText("");
-		connectionCheck();
-		new Thread(){
-			public void run(){
-				try {
-					RemeberMeCacheUser=new RemeberedLogin(IDField,passwd);
-					if (RemeberMeCacheUser.doHaveRemeberedLogin) KeyReleased=true;
-				} catch (IOException e) {FeedBack("硬盘残忍地拒绝了我们的缓存读取请求pwp",Color.BLACK,3000);}}
-		}.start();
-		passwd.focusedProperty().addListener((FocusListener)->{
-			if (passwd.isFocused()){
-				if (RemeberMeCacheUser!=null){
-					RemeberMeCacheUser=null;
-					passwd.setText("");
+		
+		ConnectionCheckHelper.BuildConnectionHelper((e) -> IOExceptionS(e,false), ConnectionCheckPane).addListener((li) ->{
+			connectionChecked = true;
+		});
+		
+		passwd.setUserData(new isCachedSession());
+		UIEventProcesser.getInstance().execute(() ->{
+			if (CachedSession.doHaveInfomation() && IDField.getText().equals("")) {
+				IDField.setText(CachedSession.getInstance().getID().getValue());
+				int length = CachedSession.getInstance().getPasswordLength();
+				StringBuilder sb = new StringBuilder(length);
+				for (int i=0;i<length;i++) {
+					sb.append("*");
 				}
+				passwd.setText(sb.toString());
+				((isCachedSession) passwd.getUserData()).Value = true;
 			}
 		});
-		stage.showingProperty().addListener((lol,o,n)->{
-			MainPane.setBackground(new Background(new BackgroundImage(
-					new Image(getClass().getResourceAsStream("realbackground.jpg")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,
-					BackgroundPosition.DEFAULT,BackgroundSize.DEFAULT)));
-		});
+		
+		MainPane.setBackground(new Background(new BackgroundImage(
+				new Image(loginController.class.getResourceAsStream("realbackground.jpg")),
+				BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,
+				BackgroundPosition.DEFAULT,BackgroundSize.DEFAULT)));
+		
 		ms=stage;
 		stage.showAndWait();
 		return loginedUser;
@@ -325,7 +349,8 @@ public class loginController implements Runnable{
 			}
 			message.insert(0, "网络连接失败qaq:");
 			FeedBack(message.toString(),Color.RED,-1);
-			if (doNeedConnectionCheck) connectionCheck();
+			if (doNeedConnectionCheck) 
+				ConnectionCheckHelper.BuildConnectionHelper((ei) -> {}, ConnectionCheckPane);
 		}else{
 			FeedBack("出错了??喵喵喵????:"+e.getClass().getName(),Color.RED,-1);
 		}
@@ -337,29 +362,15 @@ public class loginController implements Runnable{
 	//Internet Check
 	
 	@FXML
-	private SplitPane ConnectionCheckSplitPane;
+	private AnchorPane ConnectionCheckPane;
 	
-	@FXML
-	private Text CCText;
-	
-	@FXML
-	private ProgressIndicator ProgressO;
-	
-	
-	@FXML
-	private Text SCCText;
-	
-	@FXML
-	private ProgressIndicator ProgressS;
-	
-	
-	private int toSchoolDelay0=-1;
-	private int toSchoolDelay1=-1;
-	private int tobaiduDelay=-1;	
-	private Boolean toSchooled=false;
-	private int stateCounter=2;
-	
+	/*
 	private void connectionCheck(){
+		ConnectionCheckHelper helper
+			= ConnectionCheckHelper.BuildConnectionHelper((e) -> IOExceptionS(e,false), ConnectionCheckPane);
+		
+		
+		/*
 		toSchoolDelay0=-1;
 		toSchoolDelay1=-1;
 		tobaiduDelay=-1;
@@ -367,141 +378,142 @@ public class loginController implements Runnable{
 		stateCounter=2;
 		if (!connectionChecked) FeedBack("正在测试网络...",Color.BROWN,-1);
 		connectionChecked=false;
-		new Thread(this).start();
-		new Thread(this).start();
-	}
-	
-	@Override
-	public void run(){
-		if (toSchooled){
-			try{
-				toSchoolDelay0=pers.Brad.CRC.CRC.loginedUser.portalCheck();
-				ProgressS.setProgress(0.5);
-				toSchoolDelay1=pers.Brad.CRC.CRC.loginedUser.orderingCheck();
-				ProgressS.setProgress(1);
-				SCCText.setFont(Font.font(14));
-				SCCText.setText("校系统连接延迟:"+toSchoolDelay0+"ms, "+toSchoolDelay1+"ms");
-			}catch (IOException e){
-				SCCText.setFont(Font.font(14));
-				SCCText.setText("校系统连接失败?");
-				IOExceptionS(e,false);
-			}
-		}else{
-			toSchooled=true;
-			try{
-				tobaiduDelay=pers.Brad.CRC.CRC.loginedUser.baiduCheck();
-				ProgressO.setProgress(1);
-				CCText.setFont(Font.font(14));
-				CCText.setText("外网连接延迟:"+tobaiduDelay+"ms");
-			}catch (IOException e){
-				CCText.setFont(Font.font(14));
-				CCText.setText("外网连接失败");
-				IOExceptionS(e,false);
-			}
-		}
-		stateCounter--;
-		if (stateCounter==0) {
-			if (toSchoolDelay0!=-1&&toSchoolDelay1!=-1&&tobaiduDelay!=-1){
-				connectionChecked=true;
-				new Thread(){
-					public void run(){
-						//FeedBack("测试成功!<(￣︶�?)>",Color.RED,6000);
-						cancelFeedBack();
-						try {
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						ConnectionCheckSplitPane.setVisible(false);
-					}
-				}.start();
+		Runnable target = () -> {
+			if (toSchooled){
+				try{
+					toSchoolDelay0=pers.wusatosi.CRC.CRCApi.loginedUser.portalCheck();
+					ProgressS.setProgress(0.5);
+					toSchoolDelay1=pers.wusatosi.CRC.CRCApi.loginedUser.orderingCheck();
+					ProgressS.setProgress(1);
+					SCCText.setFont(Font.font(14));
+					SCCText.setText("校系统连接延迟:"+toSchoolDelay0+"ms, "+toSchoolDelay1+"ms");
+				}catch (IOException e){
+					SCCText.setFont(Font.font(14));
+					SCCText.setText("校系统连接失败?");
+					IOExceptionS(e,false);
+				}
 			}else{
-				if (toSchoolDelay0==-1&&toSchoolDelay1==-1&&tobaiduDelay==-1){
-					if (!connectionChecked) FeedBack("全网连接失败，请检查网络连接(?_?)",Color.RED,10000);
+				toSchooled=true;
+				try{
+					tobaiduDelay=pers.wusatosi.CRC.CRCApi.loginedUser.baiduCheck();
+					ProgressO.setProgress(1);
+					CCText.setFont(Font.font(14));
+					CCText.setText("外网连接延迟:"+tobaiduDelay+"ms");
+				}catch (IOException e){
+					CCText.setFont(Font.font(14));
+					CCText.setText("外网连接失败");
+					IOExceptionS(e,false);
+				}
+			}
+			stateCounter--;
+			if (stateCounter==0) {
+				if (toSchoolDelay0!=-1&&toSchoolDelay1!=-1&&tobaiduDelay!=-1){
+					connectionChecked=true;
 					new Thread(){
 						public void run(){
-							System.err.println("RECONNECT");
-							try {Thread.sleep(3000);} catch (InterruptedException e1) {e1.printStackTrace();}
-							for (int i=5;i>=0;i--){
-								CCText.setText(i+"秒后尝试重连?");
-								SCCText.setText(i+"秒后尝试重连?");
-								try {
-									Thread.sleep(1000);
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
+							//FeedBack("测试成功!<(￣︶�?)>",Color.RED,6000);
+							cancelFeedBack();
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}
-							try {Thread.sleep(400);} catch (InterruptedException e) {e.printStackTrace();}
-							//init connection check
-							toSchoolDelay0=-1;
-							toSchoolDelay1=-1;
-							tobaiduDelay=-1;
-							toSchooled=false;
-							stateCounter=2;
-							connectionCheck();
+							ConnectionCheckSplitPane.setVisible(false);
 						}
 					}.start();
-				}
-				else{
-					if (toSchoolDelay0!=-1&&toSchoolDelay1!=-1&&tobaiduDelay==-1){
-						if (!connectionChecked) FeedBack("诡异的网络环境(￢_￢?)",Color.RED,-1);
+				}else{
+					if (toSchoolDelay0==-1&&toSchoolDelay1==-1&&tobaiduDelay==-1){
+						if (!connectionChecked) FeedBack("全网连接失败，请检查网络连接(?_?)",Color.RED,10000);
 						new Thread(){
 							public void run(){
-								try {
-									Thread.sleep(1000);
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								ConnectionCheckSplitPane.setVisible(false);
-							}
-						}.start();
-					}else{
-						if ((toSchoolDelay0==-1||toSchoolDelay1==-1)&&tobaiduDelay!=-1){
-							SCCText.setFont(Font.font(14));
-							SCCText.setText("校系统连接失败");
-							if (!connectionChecked) FeedBack("可能校服务器炸了?",Color.RED,-1);
-							new Thread(){
-								public void run(){
-									System.err.println("RECONNECT");
+								System.err.println("RECONNECT");
+								try {Thread.sleep(3000);} catch (InterruptedException e1) {e1.printStackTrace();}
+								for (int i=5;i>=0;i--){
+									CCText.setText(i+"秒后尝试重连?");
+									SCCText.setText(i+"秒后尝试重连?");
 									try {
-										Thread.sleep(3000);
-									} catch (InterruptedException e1) {
-										// TODO Auto-generated catch block
-										e1.printStackTrace();
-									}
-									for (int i=5;i>=0;i--){
-										SCCText.setText(i+"秒后尝试重连?");
-										try {
-											Thread.sleep(1000);
-										} catch (InterruptedException e) {
-											// TODO Auto-generated catch block
-											e.printStackTrace();
-										}
-									}
-									try {
-										Thread.sleep(400);
+										Thread.sleep(1000);
 									} catch (InterruptedException e) {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
-									//init connection check	private 
-									toSchoolDelay0=-1;
-									toSchoolDelay1=-1;
-									tobaiduDelay=-1;	
-									toSchooled=false;
-									stateCounter=2;
-									connectionCheck();
+								}
+								try {Thread.sleep(400);} catch (InterruptedException e) {e.printStackTrace();}
+								//init connection check
+								toSchoolDelay0=-1;
+								toSchoolDelay1=-1;
+								tobaiduDelay=-1;
+								toSchooled=false;
+								stateCounter=2;
+								connectionCheck();
+							}
+						}.start();
+					}
+					else{
+						if (toSchoolDelay0!=-1&&toSchoolDelay1!=-1&&tobaiduDelay==-1){
+							if (!connectionChecked) FeedBack("诡异的网络环境(￢_￢?)",Color.RED,-1);
+							new Thread(){
+								public void run(){
+									try {
+										Thread.sleep(1000);
+									} catch (InterruptedException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+									ConnectionCheckSplitPane.setVisible(false);
 								}
 							}.start();
+						}else{
+							if ((toSchoolDelay0==-1||toSchoolDelay1==-1)&&tobaiduDelay!=-1){
+								SCCText.setFont(Font.font(14));
+								SCCText.setText("校系统连接失败");
+								if (!connectionChecked) FeedBack("可能校服务器炸了?",Color.RED,-1);
+								new Thread(){
+									public void run(){
+										System.err.println("RECONNECT");
+										try {
+											Thread.sleep(3000);
+										} catch (InterruptedException e1) {
+											// TODO Auto-generated catch block
+											e1.printStackTrace();
+										}
+										for (int i=5;i>=0;i--){
+											SCCText.setText(i+"秒后尝试重连?");
+											try {
+												Thread.sleep(1000);
+											} catch (InterruptedException e) {
+												// TODO Auto-generated catch block
+												e.printStackTrace();
+											}
+										}
+										try {
+											Thread.sleep(400);
+										} catch (InterruptedException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
+										//init connection check	private 
+										toSchoolDelay0=-1;
+										toSchoolDelay1=-1;
+										tobaiduDelay=-1;	
+										toSchooled=false;
+										stateCounter=2;
+										connectionCheck();
+									}
+								}.start();
+							}
 						}
 					}
 				}
 			}
-		}
-	}
+		};
+		UIEventProcesser.getInstance().execute(target);
+		UIEventProcesser.getInstance().execute(target);
+		
+		*/
+//	}
+	
 	
 	//extend feature
 	
@@ -516,10 +528,6 @@ public class loginController implements Runnable{
 	
 	@FXML
 	private void ChangeLoginWayOnAction(){
-		if (RemeberMeCacheUser!=null){
-			RemeberMeCacheUser=null;
-			passwd.setText("");
-		}
 		if (ChangeLoginWay.isSelected()){
 			IDField.setVisible(false);
 			passwd.setVisible(false);
@@ -559,19 +567,20 @@ public class loginController implements Runnable{
 			}
 			FeedBack("尝试登陆ID:"+ID,Color.BROWN,5000);
 			final StudentID innerID=(StudentID) ID;
-			new Thread(()->{
+			UIEventProcesser.quickSubmit(()->{
 				try {
 					loginedUser=new loginedUser(innerID);
 					Platform.runLater(()->{FeedBack("登陆成功;-) ID:"+innerID.getValue(),Color.BROWN,2000);});
 				} catch (IOException e) {
 					IOExceptionS(e,true);
 				} 
-			},"Login Service");
+			});
 		} catch (IOException e){
 			IOExceptionS(e,true);
 		}
 	}
 }
+/*
 class RemeberedLogin{
 	
 	public RemeberedLogin(TextField tf1,PasswordField tf2) throws IOException{
@@ -821,3 +830,4 @@ class RemeberedLogin{
 		}
 	}
 }
+*/
